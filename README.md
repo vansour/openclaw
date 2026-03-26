@@ -25,6 +25,8 @@ Because this repository targets a headless deployment, the example runtime flow 
 - `versions/openclaw.env`: upstream and image pins
 - `docker/Dockerfile`: downstream runtime image build
 - `docker/compose.example.yml`: minimal runtime example
+- `docker/openclaw.example.json5`: sample headless gateway config with `vansour-openai` plus Telegram
+- `docker/.env.example`: credentials template for local compose runs
 - `scripts/fetch-upstream.sh`: download and verify upstream source archive
 - `scripts/prepare-context.sh`: expand source and apply local patches
 - `scripts/smoke-test.sh`: health and permission smoke checks
@@ -41,6 +43,45 @@ This will:
 2. Verify its SHA-256 checksum.
 3. Prepare a clean Docker build context under `.cache/contexts/`.
 4. Build the image with the pinned `node:25-trixie` images.
+
+## vansour-openai + Telegram template
+
+Use [openclaw.example.json5](/root/github/openclaw/docker/openclaw.example.json5) as the base config when you want:
+
+- your `https://newapi.vansour.net/v1` OpenAI-compatible endpoint
+- forced `openai-responses` mode
+- Telegram bot ingress via long polling
+
+Key points:
+
+- Set `models.providers.<id>.baseUrl` to your endpoint URL.
+- Set `models.providers.<id>.apiKey` from an environment variable or SecretRef.
+- Force `models.providers.<id>.api = "openai-responses"`.
+- Set each model entry to `api: "openai-responses"` as well.
+- Point `agents.defaults.model.primary` at `provider/model`.
+
+This repository's example is already wired for:
+
+- provider id: `vansour-openai`
+- base URL: `https://newapi.vansour.net/v1`
+- model id: `gpt-5.4`
+- env vars: `VANSOUR_OPENAI_API_KEY` and `TELEGRAM_BOT_TOKEN`
+- Telegram DM policy: `pairing`
+- Telegram groups: allowed, but require mention by default
+
+The Compose example already includes:
+
+- `VANSOUR_OPENAI_API_KEY`
+- `TELEGRAM_BOT_TOKEN`
+- `OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json`
+
+Recommended runtime flow:
+
+1. Copy [docker/.env.example](/root/github/openclaw/docker/.env.example) to a real `.env` file near your compose run and fill both tokens.
+2. Place [docker/openclaw.example.json5](/root/github/openclaw/docker/openclaw.example.json5) at `/home/node/.openclaw/openclaw.json`.
+3. Adjust model limits in the template if your endpoint uses different caps.
+4. Start the stack with Compose.
+5. On first Telegram DM, approve pairing with `openclaw pairing list telegram` and `openclaw pairing approve telegram <CODE>`.
 
 ## Smoke test
 

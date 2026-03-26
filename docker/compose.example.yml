@@ -13,6 +13,9 @@ services:
         exec node openclaw.mjs gateway --allow-unconfigured --bind lan
     environment:
       NODE_ENV: production
+      VANSOUR_OPENAI_API_KEY: ${VANSOUR_OPENAI_API_KEY}
+      TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
+      OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
     volumes:
       - ../data/config:/home/node/.openclaw
       - ../data/workspace:/home/node/.openclaw/workspace
