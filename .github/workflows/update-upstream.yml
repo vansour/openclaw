@@ -1,0 +1,57 @@
+name: update-upstream
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "23 3 * * *"
+
+jobs:
+  update-upstream:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Git identity
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update upstream version pins
+        run: ./scripts/update-upstream.sh
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if git diff --quiet -- versions/openclaw.env; then
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "updated=true" >> "$GITHUB_OUTPUT"
+          version="$(awk -F= '/^OPENCLAW_VERSION=/{print $2}' versions/openclaw.env)"
+          echo "version=${version}" >> "$GITHUB_OUTPUT"
+
+      - name: Create pull request
+        if: steps.changes.outputs.updated == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: chore/update-openclaw-${{ steps.changes.outputs.version }}
+          delete-branch: true
+          commit-message: "chore: update OpenClaw to ${{ steps.changes.outputs.version }}"
+          title: "chore: update OpenClaw to ${{ steps.changes.outputs.version }}"
+          body: |
+            Automated upstream version refresh.
+
+            This PR updates:
+            - `OPENCLAW_VERSION`
+            - source archive URL
+            - source SHA-256
+            - pinned package manager version
+
+            After merge, run the normal image build and smoke checks before release.
