@@ -16,8 +16,8 @@ Because this repository targets a headless deployment, the example runtime flow 
 ## Current baseline
 
 - Upstream release: `v2026.3.24`
-- Base builder image: `node:25-trixie`
-- Base runtime image: `node:25-trixie-slim`
+- Base builder image: `node:24-trixie`
+- Base runtime image: `node:24-trixie-slim`
 - Package manager: `pnpm@10.32.1`
 
 ## Layout
@@ -42,7 +42,7 @@ This will:
 1. Download the pinned upstream OpenClaw source archive.
 2. Verify its SHA-256 checksum.
 3. Prepare a clean Docker build context under `.cache/contexts/`.
-4. Build the image with the pinned `node:25-trixie` images.
+4. Build the image with the pinned `node:24-trixie` images.
 
 ## vansour-openai + Telegram template
 
