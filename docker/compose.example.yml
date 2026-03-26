@@ -1,0 +1,18 @@
+services:
+  openclaw:
+    image: ghcr.io/vansour/openclaw:${OPENCLAW_VERSION}-${OPENCLAW_IMAGE_REVISION}
+    container_name: openclaw
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    command:
+      - sh
+      - -lc
+      - |
+        node openclaw.mjs config set gateway.controlUi.enabled false >/dev/null
+        exec node openclaw.mjs gateway --allow-unconfigured --bind lan
+    environment:
+      NODE_ENV: production
+    volumes:
+      - ../data/config:/home/node/.openclaw
+      - ../data/workspace:/home/node/.openclaw/workspace

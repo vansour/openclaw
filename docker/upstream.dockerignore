@@ -1,0 +1,11 @@
+.git
+node_modules
+ui/node_modules
+dist
+ui/dist
+coverage
+tmp
+logs
+.env
+.openclaw
+

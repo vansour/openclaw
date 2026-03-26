@@ -1,0 +1,6 @@
+.cache/
+.env
+.env.local
+data/
+tmp/
+
