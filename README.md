@@ -74,17 +74,31 @@ The Compose example already includes:
 - `VANSOUR_OPENAI_API_KEY`
 - `TELEGRAM_BOT_TOKEN`
 - `OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json`
-- Docker named volumes for config and workspace persistence
-- first-start bootstrap from `docker/openclaw.example.json5`
+- host bind mounts under `./data/config` and `./data/workspace`
+- first-start bootstrap from the template baked into the image
+- startup as `root` only long enough to fix bind-mount permissions, then drop back to `node`
 
 Recommended runtime flow:
 
 1. Copy [docker/.env.example](/root/github/openclaw/docker/.env.example) to a real `.env` file near your compose run and fill both tokens.
-2. Adjust [docker/openclaw.example.json5](/root/github/openclaw/docker/openclaw.example.json5) if your endpoint uses different caps or policies.
-3. Start the stack with Compose. On first start, the template is copied into the writable config volume automatically.
+2. Start the stack with Compose. On first start, the image copies its baked-in template to `./data/config/openclaw.json`.
+3. If you need to customize limits or policies, edit `./data/config/openclaw.json` after the first boot.
 4. On first Telegram DM, approve pairing with `openclaw pairing list telegram` and `openclaw pairing approve telegram <CODE>`.
 
-If you replace the named volumes with host bind mounts, make sure the mounted config directory and files are writable by the container's `node` user (`uid=1000`, `gid=1000`). Otherwise OpenClaw cannot update `openclaw.json` and startup will fail with `EACCES`.
+Before first boot, you can lay out the deployment directory like this:
+
+```text
+.
+├── compose.yaml
+└── data
+    ├── config
+    │   └── workspace
+    └── workspace
+```
+
+After the first boot, OpenClaw writes `data/config/openclaw.json` automatically.
+
+The extra `data/config/workspace` directory is expected when you bind-mount both `./data/config` to `/home/node/.openclaw` and `./data/workspace` to `/home/node/.openclaw/workspace`.
 
 ## Smoke test
 

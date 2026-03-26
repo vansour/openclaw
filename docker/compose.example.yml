@@ -3,27 +3,29 @@ services:
     image: ghcr.io/vansour/openclaw:${OPENCLAW_VERSION}-${OPENCLAW_IMAGE_REVISION}
     container_name: openclaw
     restart: unless-stopped
+    user: "0:0"
     ports:
       - "18789:18789"
     command:
       - sh
       - -lc
       - |
+        mkdir -p /home/node/.openclaw /home/node/.openclaw/workspace
+        chown node:node /home/node/.openclaw /home/node/.openclaw/workspace
         if [ ! -f /home/node/.openclaw/openclaw.json ]; then
-          cp /bootstrap/openclaw.example.json5 /home/node/.openclaw/openclaw.json
+          cp /app/examples/openclaw.example.json5 /home/node/.openclaw/openclaw.json
+          chown node:node /home/node/.openclaw/openclaw.json
+          chmod 600 /home/node/.openclaw/openclaw.json
         fi
-        node openclaw.mjs config set gateway.controlUi.enabled false >/dev/null
-        exec node openclaw.mjs gateway --allow-unconfigured --bind lan
+        setpriv --reuid 1000 --regid 1000 --init-groups \
+          node openclaw.mjs config set gateway.controlUi.enabled false >/dev/null
+        exec setpriv --reuid 1000 --regid 1000 --init-groups \
+          node openclaw.mjs gateway --allow-unconfigured --bind lan
     environment:
       NODE_ENV: production
       VANSOUR_OPENAI_API_KEY: ${VANSOUR_OPENAI_API_KEY}
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
     volumes:
-      - openclaw-config:/home/node/.openclaw
-      - openclaw-workspace:/home/node/.openclaw/workspace
-      - ./openclaw.example.json5:/bootstrap/openclaw.example.json5:ro
-
-volumes:
-  openclaw-config:
-  openclaw-workspace:
+      - ./data/config:/home/node/.openclaw
+      - ./data/workspace:/home/node/.openclaw/workspace

@@ -105,6 +105,7 @@ COPY --from=runtime-assets --chown=node:node /app/openclaw.mjs .
 COPY --from=runtime-assets --chown=node:node /app/extensions ./extensions
 COPY --from=runtime-assets --chown=node:node /app/skills ./skills
 COPY --from=runtime-assets --chown=node:node /app/docs ./docs
+COPY --from=runtime-assets --chown=node:node /app/.downstream/openclaw.example.json5 ./examples/openclaw.example.json5
 
 ENV OPENCLAW_BUNDLED_PLUGINS_DIR=/app/extensions
 ENV NODE_ENV=production

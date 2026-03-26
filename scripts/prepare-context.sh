@@ -15,6 +15,8 @@ rm -rf "${CONTEXT_DIR}"
 mkdir -p "${CONTEXT_DIR}"
 cp -a "${SOURCE_DIR}/." "${CONTEXT_DIR}/"
 cp "${REPO_ROOT}/docker/upstream.dockerignore" "${CONTEXT_DIR}/.dockerignore"
+mkdir -p "${CONTEXT_DIR}/.downstream"
+cp "${REPO_ROOT}/docker/openclaw.example.json5" "${CONTEXT_DIR}/.downstream/openclaw.example.json5"
 
 shopt -s nullglob
 for patch in "${REPO_ROOT}"/patches/*.patch; do
