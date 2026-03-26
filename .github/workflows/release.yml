@@ -27,4 +27,4 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Publish image
-        run: make publish
+        run: make publish EXTRA_TAGS=latest

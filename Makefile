@@ -3,8 +3,10 @@ include versions/openclaw.env
 IMAGE_NAME ?= ghcr.io/vansour/openclaw
 IMAGE_TAG ?= $(OPENCLAW_VERSION)-$(OPENCLAW_IMAGE_REVISION)
 IMAGE_REF ?= $(IMAGE_NAME):$(IMAGE_TAG)
+EXTRA_TAGS ?=
 PLATFORMS ?= linux/amd64,linux/arm64
 CONTEXT_DIR := .cache/contexts/openclaw-$(OPENCLAW_VERSION)
+TAG_ARGS := -t $(IMAGE_REF) $(foreach tag,$(EXTRA_TAGS),-t $(IMAGE_NAME):$(tag))
 
 BUILD_ARGS := \
 	--build-arg OPENCLAW_NODE_IMAGE=$(OPENCLAW_NODE_IMAGE) \
@@ -25,10 +27,10 @@ prepare:
 	@./scripts/prepare-context.sh
 
 build: prepare
-	docker buildx build --load -t $(IMAGE_REF) -f docker/Dockerfile $(BUILD_ARGS) $(CONTEXT_DIR)
+	docker buildx build --load $(TAG_ARGS) -f docker/Dockerfile $(BUILD_ARGS) $(CONTEXT_DIR)
 
 smoke:
 	./scripts/smoke-test.sh $(IMAGE_REF)
 
 publish: prepare
-	docker buildx build --platform $(PLATFORMS) --push -t $(IMAGE_REF) -f docker/Dockerfile $(BUILD_ARGS) $(CONTEXT_DIR)
+	docker buildx build --platform $(PLATFORMS) --push $(TAG_ARGS) -f docker/Dockerfile $(BUILD_ARGS) $(CONTEXT_DIR)
