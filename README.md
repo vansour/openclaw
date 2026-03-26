@@ -74,9 +74,11 @@ The Compose example already includes:
 - `VANSOUR_OPENAI_API_KEY`
 - `TELEGRAM_BOT_TOKEN`
 - `OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json`
+- `OPENCLAW_STATE_DIR=/home/node/.openclaw`
 - host bind mounts under `./data/config` and `./data/workspace`
 - first-start bootstrap from the template baked into the image
 - startup as `root` only long enough to fix bind-mount permissions, then drop back to `node`
+- explicit `HOME=/home/node` plus XDG env so runtime state does not leak into `/root/.openclaw`
 
 Recommended runtime flow:
 

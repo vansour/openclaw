@@ -27,6 +27,13 @@ trap cleanup EXIT
 
 docker run -d \
   --name "${CONTAINER_NAME}" \
+  -e HOME=/home/node \
+  -e USER=node \
+  -e LOGNAME=node \
+  -e XDG_CONFIG_HOME=/home/node/.config \
+  -e XDG_CACHE_HOME=/home/node/.cache \
+  -e OPENCLAW_STATE_DIR=/home/node/.openclaw \
+  -e OPENCLAW_CONFIG_PATH=/home/node/.openclaw/openclaw.json \
   -p "127.0.0.1:${HOST_PORT}:18789" \
   "${IMAGE_REF}" \
   sh -lc 'node openclaw.mjs config set gateway.controlUi.enabled false >/dev/null && exec node openclaw.mjs gateway --allow-unconfigured --bind lan' >/dev/null
@@ -41,5 +48,7 @@ done
 curl -fsS "http://127.0.0.1:${HOST_PORT}/healthz" >/dev/null
 curl -fsS "http://127.0.0.1:${HOST_PORT}/readyz" >/dev/null
 docker exec "${CONTAINER_NAME}" sh -lc 'test "$(id -u)" = "1000"'
+docker exec "${CONTAINER_NAME}" sh -lc 'test "$HOME" = "/home/node"'
+docker exec "${CONTAINER_NAME}" sh -lc 'test "$OPENCLAW_STATE_DIR" = "/home/node/.openclaw"'
 docker exec "${CONTAINER_NAME}" sh -lc 'test -d /home/node/.openclaw && test -w /home/node/.openclaw'
 docker exec "${CONTAINER_NAME}" sh -lc 'test -d /home/node/.openclaw/workspace && test -w /home/node/.openclaw/workspace'
