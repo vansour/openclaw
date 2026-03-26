@@ -9,6 +9,9 @@ services:
       - sh
       - -lc
       - |
+        if [ ! -f /home/node/.openclaw/openclaw.json ]; then
+          cp /bootstrap/openclaw.example.json5 /home/node/.openclaw/openclaw.json
+        fi
         node openclaw.mjs config set gateway.controlUi.enabled false >/dev/null
         exec node openclaw.mjs gateway --allow-unconfigured --bind lan
     environment:
@@ -17,5 +20,10 @@ services:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       OPENCLAW_CONFIG_PATH: /home/node/.openclaw/openclaw.json
     volumes:
-      - ../data/config:/home/node/.openclaw
-      - ../data/workspace:/home/node/.openclaw/workspace
+      - openclaw-config:/home/node/.openclaw
+      - openclaw-workspace:/home/node/.openclaw/workspace
+      - ./openclaw.example.json5:/bootstrap/openclaw.example.json5:ro
+
+volumes:
+  openclaw-config:
+  openclaw-workspace:
