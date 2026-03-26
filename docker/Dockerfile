@@ -106,13 +106,13 @@ COPY --from=runtime-assets --chown=node:node /app/extensions ./extensions
 COPY --from=runtime-assets --chown=node:node /app/skills ./skills
 COPY --from=runtime-assets --chown=node:node /app/docs ./docs
 COPY --from=runtime-assets --chown=node:node /app/.downstream/openclaw.example.json5 ./examples/openclaw.example.json5
+COPY --chmod=755 .downstream/openclaw-wrapper.sh /usr/local/bin/openclaw
 
 ENV OPENCLAW_BUNDLED_PLUGINS_DIR=/app/extensions
 ENV NODE_ENV=production
 
 RUN install -d -o node -g node /home/node/.openclaw /home/node/.openclaw/workspace /home/node/.cache/ms-playwright && \
     npm install -g "${OPENCLAW_PACKAGE_MANAGER}" && \
-    ln -sf /app/openclaw.mjs /usr/local/bin/openclaw && \
     chmod 755 /app/openclaw.mjs
 
 RUN if [ "${OPENCLAW_INSTALL_BROWSER}" = "1" ]; then \

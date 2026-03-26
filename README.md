@@ -79,6 +79,7 @@ The Compose example already includes:
 - first-start bootstrap from the template baked into the image
 - startup as `root` only long enough to fix bind-mount permissions, then drop back to `node`
 - explicit `HOME=/home/node` plus XDG env so runtime state does not leak into `/root/.openclaw`
+- container `openclaw` CLI auto-drops from `root` to `node`, so `docker compose exec openclaw openclaw ...` writes readable state files
 
 Recommended runtime flow:
 
